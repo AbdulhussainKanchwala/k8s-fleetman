@@ -54,6 +54,7 @@ jobs:
       - build
     steps:
       - uses: actions/checkout@v2
+      - run: echo ${{ needs.build.outputs.registry }}
       - name: Deploy
         uses: cancue/eks-action@v0.0.2
         env:

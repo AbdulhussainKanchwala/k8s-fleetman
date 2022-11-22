@@ -14,7 +14,7 @@ env:
   SHORT_SHA: $(echo ${{ github.sha }} | cut -c 1-8)
   EKS_CLUSTER_NAME: devopsthehardway-cluster
   K8S_NAMESPACE: default
-  K8S_DEPLOYMENT: api-gateway
+  K8S_DEPLOYMENT: api-gate/////////////way
 
 jobs:
   build:
@@ -39,7 +39,7 @@ jobs:
       env:
         ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
       run: |
-        cd k8s-fleetman-api-gateway/src/main/docker/
+        cd k8s-fleetman-queue/
         docker image build \
         --tag ${{ env.ECR_REGISTRY }}/${{ env.ECR_REPOSITORY }}:latest \
         --tag ${{ env.ECR_REGISTRY }}/${{ env.ECR_REPOSITORY }}:${{ env.SHORT_SHA }} \
@@ -48,6 +48,9 @@ jobs:
         docker push ${{ env.ECR_REGISTRY }}/${{ env.ECR_REPOSITORY }}:${{ env.SHORT_SHA }}
   deploy:
     runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/master'
+    needs:
+      - build
     steps:
       - uses: actions/checkout@v2
       - name: Deploy
@@ -60,5 +63,5 @@ jobs:
         with:
           args: |
             kubectl set image deployment $K8S_DEPLOYMENT -n $K8S_NAMESPACE
-            $K8S_DEPLOYMENT=${{ steps.login-ecr.outputs.registry }}/${{ env.ECR_REPOSITORY }}:${{ env.SHORT_SHA }} &&
+            $K8S_DEPLOYMENT=${{ build.steps.login-ecr.outputs.registry }}/${{ env.ECR_REPOSITORY }}:${{ env.SHORT_SHA }} &&
             kubectl rollout status deployment/$K8S_DEPLOYMENT -n $K8S_NAMESPACE   

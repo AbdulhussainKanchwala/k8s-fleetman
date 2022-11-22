@@ -14,7 +14,7 @@ env:
   SHORT_SHA: $(echo ${{ github.sha }} | cut -c 1-8)
   EKS_CLUSTER_NAME: devopsthehardway-cluster
   K8S_NAMESPACE: default
-  K8S_DEPLOYMENT: api-gate/////////////way
+  K8S_DEPLOYMENT: queue
 
 jobs:
   build:
